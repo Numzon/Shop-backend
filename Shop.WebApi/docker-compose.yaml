@@ -1,0 +1,57 @@
+﻿version: "3.7"
+services:
+  mssql:
+    container_name: SqlServer
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "ergo.1234"
+    ports:
+      - 1433:1433
+    volumes:
+      - sqlserver_data_container:/var/opt/mssql
+
+  elasticsearch: 
+    container_name: els
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.1
+    ports:
+      - 9200:9200
+    volumes: 
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    networks: 
+      - elastic
+  
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:8.7.1
+    ports: 
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_URL=http://localhost:9200
+    networks:
+      - elastic
+
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes: 
+      - redis:/data
+
+networks:
+  elastic:
+    driver: bridge
+
+volumes:
+  sqlserver_data_container:
+  elasticsearch-data:
+  redis:
+    driver: local
