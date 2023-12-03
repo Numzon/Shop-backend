@@ -1,9 +1,11 @@
 ﻿using Mapster;
 using Shop.Application.WeatherForecasts.Models;
-using Shop.Domain.Enitites;
+using Shop.Domain.Entities;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Shop.Application.Common.Mappings;
 
+[ExcludeFromCodeCoverage]
 public static class MapsterConfig
 {
     public static TypeAdapterConfig GetGlobalSettingsConfigurationForMapster()

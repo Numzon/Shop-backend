@@ -1,12 +1,18 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Elasticsearch.Net.Specification.SecurityApi;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Nest;
+using Shop.Application.Authentication.Models;
 using Shop.Application.Common.Interfaces;
 using Shop.Application.Common.Models;
-using Shop.Domain.Enitites;
+using Shop.Domain.Entities;
+using Shop.Infrastructure.Identity;
 using Shop.Infrastructure.Persistance;
+using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -18,8 +24,8 @@ public static class ConfigureServices
         var connectionString = BuildConnectionString(connectionStringDto);
 
         services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString,
-                    builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+                options.UseSqlServer(connectionString, builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)))
+                .Configure<JwtDto>(o => configuration.GetRequiredSection("Jwt").Bind(o));
 
         services.AddElasticSearch(configuration);
 
@@ -28,7 +34,10 @@ public static class ConfigureServices
         services.SetUpDependencyInjection();
 
         services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+        services.AddJWTConfigurtion(configuration);
 
         return services;
     }
@@ -91,6 +100,7 @@ public static class ConfigureServices
     private static IServiceCollection SetUpDependencyInjection(this IServiceCollection services)
     {
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+        services.AddScoped<IIdentityService, IdentityService>();
 
         return services;
     }
@@ -111,5 +121,43 @@ public static class ConfigureServices
         });
 
         return services;
+    }
+
+    private static IServiceCollection AddJWTConfigurtion(this IServiceCollection services, IConfiguration configuration)
+    {
+        var jwtDto = configuration.GetRequiredSection("Jwt").Get<JwtDto>();
+
+        if (jwtDto is null)
+        {
+            throw new InvalidOperationException("Jwt section cannot be found. Please check your secret manager.");
+        }
+
+        var tokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateActor = true,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            RequireExpirationTime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtDto.Issuer,
+            ValidAudience = jwtDto.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtDto.SecretKey))
+        };
+
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+        {
+            options.SaveToken = true;
+            options.TokenValidationParameters = tokenValidationParameters;
+        });
+
+        services.AddSingleton(tokenValidationParameters);
+
+        return services;
+
     }
 }

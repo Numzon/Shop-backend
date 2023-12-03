@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Shop.Application.Common.Interfaces;
+using Shop.Domain.Entities;
+using System.Reflection;
 
 namespace Shop.Infrastructure.Persistance;
 public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IApplicationDbContext
@@ -16,6 +12,8 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IApplicatio
 	{
 
 	}
+
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

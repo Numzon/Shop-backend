@@ -4,7 +4,7 @@ using Nest;
 using Shop.Application.Common.Interfaces;
 using Shop.Application.WeatherForecasts.Models;
 using Shop.Application.WeatherForecasts.Queries;
-using Shop.Domain.Enitites;
+using Shop.Domain.Entities;
 
 namespace Shop.Application.WeatherForecasts.Handlers;
 public class GetAllForecastsHandler : IRequestHandler<GetAllForecastsQuery, List<WeatherForecastDto>>
