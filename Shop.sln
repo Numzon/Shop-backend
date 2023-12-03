@@ -28,7 +28,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.IntegrationTests", "Application.IntegrationTests\Application.IntegrationTests.csproj", "{DA496416-8B0F-4A46-AE13-88A0E4FD0558}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.FunctionalTests", "Application.IntegrationTests\Application.FunctionalTests.csproj", "{DA496416-8B0F-4A46-AE13-88A0E4FD0558}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shop.WebApi", "Shop.WebApi\Shop.WebApi.csproj", "{02988C67-4649-4732-AAB4-2AAE050A1F2B}"
 EndProject

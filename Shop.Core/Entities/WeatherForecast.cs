@@ -1,4 +1,4 @@
-namespace Shop.Domain.Enitites;
+namespace Shop.Domain.Entities;
 
 public class WeatherForecast
 {

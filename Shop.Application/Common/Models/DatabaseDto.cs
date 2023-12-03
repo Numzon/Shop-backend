@@ -1,4 +1,8 @@
-﻿namespace Shop.Application.Common.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Shop.Application.Common.Models;
+
+[ExcludeFromCodeCoverage]
 public sealed class DatabaseDto
 {
     public string UserId { get; set; } = null!;
