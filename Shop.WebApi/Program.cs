@@ -1,4 +1,5 @@
 using Serilog;
+using Shop.Infrastructure;
 
 namespace Shop.WebApi.Program.Main;
 
