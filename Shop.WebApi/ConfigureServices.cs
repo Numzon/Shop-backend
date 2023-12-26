@@ -1,4 +1,6 @@
 ﻿using Serilog;
+using Shop.Application.Common.Interfaces;
+using Shop.WebApi.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -6,6 +8,8 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services)
     {
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+
         Log.Logger = new LoggerConfiguration()
         .MinimumLevel.Information()
         .WriteTo.File("logs/logs-.txt", rollingInterval: RollingInterval.Day)

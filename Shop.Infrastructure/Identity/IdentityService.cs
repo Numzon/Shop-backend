@@ -13,6 +13,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 
 namespace Shop.Infrastructure.Identity;
 
@@ -41,16 +42,11 @@ public class IdentityService : IIdentityService
 
         var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_settings.SecretKey));
 
+        var claims = await GetAllValidClaims(user);
+
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim(CustomClaimNames.Id, user.Id),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToUniversalTime().ToString()),
-            }),
+            Subject = new ClaimsIdentity(claims),
             Issuer = _settings.Issuer,
             Audience = _settings.Audience,
             Expires = DateTime.UtcNow.Add(_settings.ExpiryTimeFrame),
@@ -134,7 +130,7 @@ public class IdentityService : IIdentityService
 
             return await GenerateTokenString(dbUser);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return AuthResultDtoFactory.ServerError();
         }
@@ -185,6 +181,39 @@ public class IdentityService : IIdentityService
             return AuthResultDtoFactory.IncorrectEmailOrPasswordError();
 
         return await GenerateTokenString(user);
+    }
+
+    private async Task<IEnumerable<Claim>> GetAllValidClaims(IdentityUser user)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(CustomClaimNames.Id, user.Id),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToUniversalTime().ToString()),
+        };
+
+        var userClaims = await _userManager.GetClaimsAsync(user);
+        claims.AddRange(userClaims);
+
+        var userRoles = await _userManager.GetRolesAsync(user);
+
+        foreach (var usreRole in userRoles)
+        {
+            var role = await _roleManager.FindByNameAsync(usreRole);
+
+            if (role != null)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, usreRole));
+                var roleClaims = await _roleManager.GetClaimsAsync(role);
+                foreach (var roleClaim in roleClaims)
+                {
+                    claims.Add(roleClaim);
+                }
+            }
+        }
+        return claims;
     }
 
     private string RandomString(int length)

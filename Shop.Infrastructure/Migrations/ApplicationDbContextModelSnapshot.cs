@@ -220,6 +220,43 @@ namespace Shop.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Shop.Domain.Entities.ProductCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ParentCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("SpecificationPatternId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCategoryId");
+
+                    b.HasIndex("SpecificationPatternId");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("Shop.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -255,6 +292,98 @@ namespace Shop.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.SpecificationPattern", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SpecificationPatterns");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.SpecificationPatternSpecificationType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("SpecificationPatternId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SpecificationTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SpecificationPatternId");
+
+                    b.HasIndex("SpecificationTypeId");
+
+                    b.ToTable("SpecificationPatternSpecificationTypes");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.SpecificationType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("SpecificationTypes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -308,6 +437,23 @@ namespace Shop.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Shop.Domain.Entities.ProductCategory", b =>
+                {
+                    b.HasOne("Shop.Domain.Entities.ProductCategory", "ParentCategory")
+                        .WithMany("Subcategories")
+                        .HasForeignKey("ParentCategoryId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Shop.Domain.Entities.SpecificationPattern", "SpecificationPattern")
+                        .WithMany("Categories")
+                        .HasForeignKey("SpecificationPatternId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("ParentCategory");
+
+                    b.Navigation("SpecificationPattern");
+                });
+
             modelBuilder.Entity("Shop.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
@@ -317,6 +463,54 @@ namespace Shop.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.SpecificationPatternSpecificationType", b =>
+                {
+                    b.HasOne("Shop.Domain.Entities.SpecificationPattern", "SpecificationPattern")
+                        .WithMany("SpecificationPatternSpecificationTypes")
+                        .HasForeignKey("SpecificationPatternId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Shop.Domain.Entities.SpecificationType", "SpecificationType")
+                        .WithMany("SpecificationPatternSpecificationTypes")
+                        .HasForeignKey("SpecificationTypeId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("SpecificationPattern");
+
+                    b.Navigation("SpecificationType");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.SpecificationType", b =>
+                {
+                    b.HasOne("Shop.Domain.Entities.SpecificationType", "Parent")
+                        .WithMany("Subtypes")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.ProductCategory", b =>
+                {
+                    b.Navigation("Subcategories");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.SpecificationPattern", b =>
+                {
+                    b.Navigation("Categories");
+
+                    b.Navigation("SpecificationPatternSpecificationTypes");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.SpecificationType", b =>
+                {
+                    b.Navigation("SpecificationPatternSpecificationTypes");
+
+                    b.Navigation("Subtypes");
                 });
 #pragma warning restore 612, 618
         }

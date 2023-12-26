@@ -12,6 +12,8 @@ using Shop.Application.Common.Models;
 using Shop.Domain.Entities;
 using Shop.Infrastructure.Identity;
 using Shop.Infrastructure.Persistance;
+using Shop.Infrastructure.Persistance.Interceptors;
+using Shop.Infrastructure.Services;
 using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -20,6 +22,9 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<BaseAuditableEntitySaveChangesInterceptor>();
+        services.AddScoped<IDateTime, DateTimeService>();
+
         var connectionStringDto = configuration.GetRequiredSection("Database").Get<DatabaseDto>();
         var connectionString = BuildConnectionString(connectionStringDto);
 
@@ -86,15 +91,15 @@ public static class ConfigureServices
 
     private static ConnectionSettings AddDefaultMappings(ConnectionSettings settings, ElasticsearchDto elasticsearchDto)
     {
-        settings.DefaultMappingFor<WeatherForecast>(s => s.IndexName(elasticsearchDto.WeatherForecastIndex)
-            .Ignore(z => z.TemperatureF)
+        settings.DefaultMappingFor<ProductCategory>(s => s.IndexName(elasticsearchDto.CategoriesIndex)
+            .Ignore(z => z.Created)
             );
 
         return settings;
     }
     private static void CreateIndexes(IElasticClient client, ElasticsearchDto elasticsearchDto)
     {
-        client.Indices.Create(elasticsearchDto.WeatherForecastIndex, i => i.Map<WeatherForecast>(x => x.AutoMap()));
+        client.Indices.Create(elasticsearchDto.CategoriesIndex, i => i.Map<ProductCategory>(x => x.AutoMap()));
     }
 
     private static IServiceCollection SetUpDependencyInjection(this IServiceCollection services)
@@ -153,6 +158,12 @@ public static class ConfigureServices
         {
             options.SaveToken = true;
             options.TokenValidationParameters = tokenValidationParameters;
+        });
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("DepartmentPolicy",
+                policy => policy.RequireClaim("department"));
         });
 
         services.AddSingleton(tokenValidationParameters);
