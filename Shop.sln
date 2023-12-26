@@ -33,6 +33,26 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.FunctionalTests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shop.WebApi", "Shop.WebApi\Shop.WebApi.csproj", "{02988C67-4649-4732-AAB4-2AAE050A1F2B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{10C2519B-6EFE-4D47-8DF0-42C241927BAA}"
+	ProjectSection(SolutionItems) = preProject
+		database-config.yaml = database-config.yaml
+		database-secrets.yaml = database-secrets.yaml
+		database.yaml = database.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deployment", "Deployment", "{312E7FEB-2601-48BA-9150-913D3FFCA326}"
+	ProjectSection(SolutionItems) = preProject
+		deployment-config.yaml = deployment-config.yaml
+		deployment-secrets.yaml = deployment-secrets.yaml
+		deployment.yaml = deployment.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elasticsearch", "Elasticsearch", "{21A0B836-E0C0-41CE-B4CB-0914E520CF5D}"
+	ProjectSection(SolutionItems) = preProject
+		elasticsearch-config.yaml = elasticsearch-config.yaml
+		elasticsearch.yaml = elasticsearch.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +114,9 @@ Global
 		{2DCAD53C-86A0-4C97-9E9B-4CF719EACFD7} = {DA675F8E-DDDA-48F0-9270-B93A16172D82}
 		{DA496416-8B0F-4A46-AE13-88A0E4FD0558} = {DA675F8E-DDDA-48F0-9270-B93A16172D82}
 		{02988C67-4649-4732-AAB4-2AAE050A1F2B} = {65C05879-DD1E-416D-B743-11FED2BB3D51}
+		{10C2519B-6EFE-4D47-8DF0-42C241927BAA} = {4F1FB644-BE90-4980-9EAB-45B9186129CF}
+		{312E7FEB-2601-48BA-9150-913D3FFCA326} = {4F1FB644-BE90-4980-9EAB-45B9186129CF}
+		{21A0B836-E0C0-41CE-B4CB-0914E520CF5D} = {4F1FB644-BE90-4980-9EAB-45B9186129CF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FCA6AC51-8BCD-4554-A4E1-91638526C458}

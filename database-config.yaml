@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: mssql-config
+data: 
+  mssql-url: mssql-service
+  
