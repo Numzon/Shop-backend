@@ -34,9 +34,9 @@ public sealed class IdentityServiceTests
     {
         _jwsOptions = new Mock<IOptions<JwtDto>>();
         var userStore = new Mock<IUserStore<IdentityUser>>();
-        _userManager = new Mock<UserManager<IdentityUser>>(userStore.Object, null, null, null, null, null, null, null, null);
+        _userManager = new Mock<UserManager<IdentityUser>>(userStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
         var roleStore = new Mock<IRoleStore<IdentityRole>>();
-        _roleManager = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
+        _roleManager = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null!, null!, null!, null!);
         _tokenValidationParameters = new Mock<TokenValidationParameters>();
         _applicationDbContext = new Mock<IApplicationDbContext>();
         _fixture = new Fixture();
@@ -417,8 +417,8 @@ public sealed class IdentityServiceTests
             Subject = new ClaimsIdentity(new[]
             {
                 new Claim(CustomClaimNames.Id, user.Id),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email!),
                 new Claim(JwtRegisteredClaimNames.Jti, jtiClaimValue),
                 new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToUniversalTime().ToString()),
             }),
