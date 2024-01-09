@@ -1,13 +1,8 @@
 ﻿using MediatR;
 using Shop.Application.Category.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Shop.Application.Common.Models;
 
 namespace Shop.Application.Category.Queries;
-public sealed class GetMainCategoriesQuery : IRequest<List<CategoryListItemDto>>
+public sealed class GetMainCategoriesQuery : GetAllFiltersDto, IRequest<GetListResponseDto<CategoryListItemDto>>
 {
-    public string? SearchString { get; set; }
 }

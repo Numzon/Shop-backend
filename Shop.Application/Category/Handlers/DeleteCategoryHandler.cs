@@ -24,19 +24,20 @@ public sealed class DeleteCategoryHandler : IRequestHandler<DeleteCategoryComman
         }
 
         _context.Categories.Entry(category).State = EntityState.Deleted;
-        SetSubcategoriesAsDeleted(category.Subcategories);
+        await SetSubcategoriesAsDeleted(category, cancellationToken);
 
         await _context.SaveChangesAsync();
     }
 
-    public void SetSubcategoriesAsDeleted(IEnumerable<ProductCategory> subcategories)
+    public async Task SetSubcategoriesAsDeleted(ProductCategory category, CancellationToken cancellationToken)
     {
+        var subcategories = await _context.Categories.Where(x => x.ParentCategoryId == category.Id).ToListAsync(cancellationToken);
         if (subcategories != null && subcategories.Any())
         {
             foreach (var item in subcategories)
             {
                 _context.Categories.Entry(item).State = EntityState.Deleted;
-                SetSubcategoriesAsDeleted(item.Subcategories);
+                await SetSubcategoriesAsDeleted(item, cancellationToken);
             }
         }
     }

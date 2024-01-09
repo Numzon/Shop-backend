@@ -2,11 +2,12 @@
 public class CategoryDto
 {
     public Guid Id { get; set; }
-
     public required string Name { get; set; }
+    public required bool HasSubcategories { get; set; }
 
-    public Guid? ParentCategoryId { get; set; }
-    public string? ParentCategoryName { get; set; }
+    public SimpleCategoryDto? ParentCategory { get; set; }
 
-    public IReadOnlyCollection<CategoryDto> Subcategories { get; set; } = new List<CategoryDto>();
+    public CategorySimpleSpecificationPatternDto? SpecificationPattern { get; set; }
+
+    public IReadOnlyCollection<SimpleCategoryDto> Subcategories { get; init; } = new List<SimpleCategoryDto>();
 }

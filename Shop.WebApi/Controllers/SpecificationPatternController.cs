@@ -1,28 +1,25 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Shop.Application.Category.Queries;
 using Shop.Application.Common.Exceptions;
+using Shop.Application.SpecificationPatterns.Commands.CreateSpecificationPattern;
+using Shop.Application.SpecificationPatterns.Commands.DeleteSpecificationPattern;
+using Shop.Application.SpecificationPatterns.Commands.EditSpecificationPattern;
 using Shop.Application.SpecificationPatterns.Queries;
-using Shop.Application.SpecificationTypes.Commands.CreateSpecificationType;
-using Shop.Application.SpecificationTypes.Commands.DeleteSpecificationType;
-using Shop.Application.SpecificationTypes.Commands.EditSpecificationType;
-using Shop.Application.SpecificationTypes.Queries;
 
 namespace Shop.WebApi.Controllers;
-
 [ApiController]
-[Route("api/specification-type")]
-public class SpecificationTypeController : ControllerBase
+[Route("api/specification-pattern")]
+public class SpecificationPatternController : ControllerBase
 {
     private readonly ISender _sender;
 
-    public SpecificationTypeController(ISender sender)
-	{
+    public SpecificationPatternController(ISender sender)
+    {
         _sender = sender;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetMainSpecificationType([FromQuery] GetAllMainSpecificationTypesQuery query)
+    public async Task<IActionResult> Get([FromQuery] GetAllSpecificationPatternsQuery query)
     {
         try
         {
@@ -40,11 +37,11 @@ public class SpecificationTypeController : ControllerBase
 
     [HttpGet]
     [Route("{id}")]
-    public async Task<IActionResult> GetSpecificationType(Guid id)
+    public async Task<IActionResult> Get(Guid id)
     {
         try
         {
-            return Ok(await _sender.Send(new GetSpecificationTypeQuery { Id = id }));
+            return Ok(await _sender.Send(new GetSpecificationPatternQuery { Id = id }));
         }
         catch (FluentValidationException ex)
         {
@@ -62,7 +59,7 @@ public class SpecificationTypeController : ControllerBase
     {
         try
         {
-            return Ok(await _sender.Send(new GetSpecificationTypesForSelectListQuery()));
+            return Ok(await _sender.Send(new GetSpecificationPatternsForSelectListQuery()));
         }
         catch (FluentValidationException ex)
         {
@@ -76,12 +73,11 @@ public class SpecificationTypeController : ControllerBase
 
     [HttpPost]
     [Route("create")]
-    public async Task<IActionResult> CreateSpecificationType(CreateSpecificationTypeCommand command)
+    public async Task<IActionResult> Create([FromBody] CreateSpecificationPatternCommand command)
     {
         try
         {
-            var result = await _sender.Send(command);
-            return CreatedAtAction(nameof(EditSpecificationType), new { id = result.Id }, result);
+            return Ok(await _sender.Send(command));
         }
         catch (FluentValidationException ex)
         {
@@ -95,7 +91,7 @@ public class SpecificationTypeController : ControllerBase
 
     [HttpPut]
     [Route("edit")]
-    public async Task<IActionResult> EditSpecificationType(EditSpecificationTypeCommand command)
+    public async Task<IActionResult> Edit([FromBody] EditSpecificationPatternCommand command)
     {
         try
         {
@@ -114,11 +110,11 @@ public class SpecificationTypeController : ControllerBase
 
     [HttpDelete]
     [Route("delete/{id}")]
-    public async Task<IActionResult> DeleteSpecificationType([FromRoute]Guid id)
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
         try
         {
-            await _sender.Send(new DeleteSpecificationTypeCommand {  Id = id });
+            await _sender.Send(new DeleteSpecificationPatternCommand { Id = id });
             return NoContent();
         }
         catch (FluentValidationException ex)

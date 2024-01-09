@@ -15,12 +15,12 @@ public class CategoryController : ControllerBase
     private readonly ISender _sender;
 
     public CategoryController(ISender sender)
-	{
+    {
         _sender = sender;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetMainCategories([FromQuery] GetMainCategoriesQuery query)
+    public async Task<IActionResult> Get([FromQuery] GetMainCategoriesQuery query)
     {
         try
         {
@@ -36,14 +36,32 @@ public class CategoryController : ControllerBase
         }
     }
 
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> Get([FromRoute] Guid id)
+    {
+        try
+        {
+            return Ok(await _sender.Send(new GetCategoryQuery { Id = id }));
+        }
+        catch (FluentValidationException ex)
+        {
+            return BadRequest(ex.Errors);
+        }
+        catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
     [HttpPost]
     [Route("create")]
-    public async Task<IActionResult> CreateCategory(CreateCategoryCommand command)
+    public async Task<IActionResult> Create([FromBody] CreateCategoryCommand command)
     {
         try
         {
             var result = await _sender.Send(command);
-            return CreatedAtAction(nameof(EditCategory), new { id = result.Id }, result);
+            return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
         }
         catch (FluentValidationException ex)
         {
@@ -57,7 +75,7 @@ public class CategoryController : ControllerBase
 
     [HttpPut]
     [Route("edit")]
-    public async Task<IActionResult> EditCategory(EditCategoryCommand command)
+    public async Task<IActionResult> Edit([FromBody] EditCategoryCommand command)
     {
         try
         {
@@ -75,12 +93,12 @@ public class CategoryController : ControllerBase
     }
 
     [HttpDelete]
-    [Route("delete")]
-    public async Task<IActionResult> DeleteCategory(DeleteCategoryCommand command)
+    [Route("delete/{id}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
         try
         {
-            await _sender.Send(command);
+            await _sender.Send(new DeleteCategoryCommand {  Id = id });
             return NoContent();
         }
         catch (FluentValidationException ex)

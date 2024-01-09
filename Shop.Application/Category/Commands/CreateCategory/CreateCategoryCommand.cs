@@ -2,7 +2,7 @@
 using Shop.Application.Category.Models;
 
 namespace Shop.Application.Category.Commands.CreateCategory;
-public sealed class CreateCategoryCommand : IRequest<CategoryDto>
+public sealed class CreateCategoryCommand : IRequest<SimpleCategoryDto>
 {
     public required string Name { get; set; }
 

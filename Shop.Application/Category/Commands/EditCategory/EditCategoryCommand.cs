@@ -7,5 +7,7 @@ public sealed class EditCategoryCommand : IRequest
     public required Guid Id { get; set; }
     public required string Name { get; set; }
 
+    public Guid? SpecificationPatternId { get; set; }
+
     public IReadOnlyCollection<EditSubcategoryDto> Subcategories { get; set; } = new List<EditSubcategoryDto>();
 }

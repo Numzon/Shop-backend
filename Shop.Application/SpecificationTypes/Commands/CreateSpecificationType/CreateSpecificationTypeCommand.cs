@@ -2,7 +2,7 @@
 using Shop.Application.SpecificationTypes.Models;
 
 namespace Shop.Application.SpecificationTypes.Commands.CreateSpecificationType;
-public sealed class CreateSpecificationTypeCommand : IRequest<SpecificationTypeDto>
+public sealed class CreateSpecificationTypeCommand : IRequest<SimpleSpecificationTypeDto>
 {
     public required string Name { get; set; }
 

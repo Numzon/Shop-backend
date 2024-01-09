@@ -16,7 +16,7 @@ public sealed class DeleteSpecificationTypeHandler : IRequestHandler<DeleteSpeci
 
     public async Task Handle(DeleteSpecificationTypeCommand request, CancellationToken cancellationToken)
     {
-        var specificationType = _context.SpecificationTypes.Where(x => x.Id == request.Id).Include(x => x.Subtypes).FirstOrDefault();
+        var specificationType = _context.SpecificationTypes.Where(x => x.Id == request.Id).FirstOrDefault();
 
         if (specificationType is null)
         {
@@ -24,19 +24,20 @@ public sealed class DeleteSpecificationTypeHandler : IRequestHandler<DeleteSpeci
         }
 
         _context.SpecificationTypes.Entry(specificationType).State = EntityState.Deleted;
-        SetSpecificationTypesAsDeleted(specificationType.Subtypes);
+        await SetSpecificationTypesAsDeleted(specificationType, cancellationToken);
 
         await _context.SaveChangesAsync();
     }
 
-    public void SetSpecificationTypesAsDeleted(IEnumerable<SpecificationType> subtypes)
+    public async Task SetSpecificationTypesAsDeleted(SpecificationType specificationType, CancellationToken cancellationToken)
     {
+        var subtypes = await _context.SpecificationTypes.Where(x => x.ParentId == specificationType.Id).ToListAsync(cancellationToken);
         if (subtypes != null && subtypes.Any())
         {
             foreach (var item in subtypes)
             {
                 _context.SpecificationTypes.Entry(item).State = EntityState.Deleted;
-                SetSpecificationTypesAsDeleted(item.Subtypes);
+                await SetSpecificationTypesAsDeleted(item, cancellationToken);
             }
         }
     }

@@ -2,11 +2,9 @@
 public class SpecificationTypeDto
 {
     public Guid Id { get; set; }
-
     public required string Name { get; set; }
 
-    public Guid? ParentId { get; set; }
-    public string? ParentName { get; set; }
+    public SimpleSpecificationTypeDto? Parent { get; set; }
 
-    public IReadOnlyCollection<SpecificationTypeDto> Subtypes { get; set; } = new List<SpecificationTypeDto>();
+    public IReadOnlyCollection<SimpleSpecificationTypeDto> Subtypes { get; set; } = new List<SimpleSpecificationTypeDto>();
 }
