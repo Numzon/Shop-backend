@@ -1,7 +1,7 @@
 ﻿using Application.UnitTests.Common.Models;
 using FluentValidation;
 using Shop.Application.Common.Behaviours;
-using ValidationException = Shop.Application.Common.Exceptions.ValidationException;
+using FluentValidationException = Shop.Application.Common.Exceptions.FluentValidationException;
 
 namespace Application.UnitTests.Common.Behaviours;
 
@@ -54,6 +54,6 @@ public sealed class ValidationBehaviourTests
 
         var func = async () => await behaviour.Handle(request, async () => await handler.Handle(request, default), default);
 
-        await func.Should().ThrowAsync<ValidationException>();
+        await func.Should().ThrowAsync<FluentValidationException>();
     }
 }

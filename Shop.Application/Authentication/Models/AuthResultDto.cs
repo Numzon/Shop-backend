@@ -1,12 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Shop.Application.Common.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Shop.Application.Authentication.Models;
 
 [ExcludeFromCodeCoverage]
-public sealed class AuthResultDto
+public sealed class AuthResultDto : CreateUpdateSimpleResponseDto
 {
     public string Token { get; set; } = null!;
-    public bool Success { get; set; }
     public string RefreshToken { get; set; } = null!;
-    public IEnumerable<string> Errors { get; set; } = null!;
 }

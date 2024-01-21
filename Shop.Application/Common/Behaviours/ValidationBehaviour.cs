@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
-using ValidationException = Shop.Application.Common.Exceptions.ValidationException;
+using ValidationException = Shop.Application.Common.Exceptions.FluentValidationException;
 
 namespace Shop.Application.Common.Behaviours;
 

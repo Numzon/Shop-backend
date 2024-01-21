@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 namespace Shop.Domain.Constants;
 public struct CustomClaimNames
 {
-    public const string Id = "Id";
+    public const string Id = nameof(Id);
 }

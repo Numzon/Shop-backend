@@ -25,7 +25,7 @@ public class AuthenticationController : ControllerBase
         {
             return await _sender.Send(request);
         }
-        catch (ValidationException ex)
+        catch (FluentValidationException ex)
         {
             return BadRequest(ex.Errors);
         }
@@ -42,7 +42,7 @@ public class AuthenticationController : ControllerBase
         {
             return await _sender.Send(request);
         }
-        catch (ValidationException ex)
+        catch (FluentValidationException ex)
         {
             return BadRequest(ex.Errors);
         }
@@ -59,7 +59,7 @@ public class AuthenticationController : ControllerBase
         {
             return await _sender.Send(request);
         }
-        catch (ValidationException ex)
+        catch (FluentValidationException ex)
         {
             return BadRequest(ex.Errors);
         }

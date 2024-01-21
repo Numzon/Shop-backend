@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Shop.Domain.Constants;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Shop.Application.Common.Models;
 
@@ -6,6 +7,5 @@ namespace Shop.Application.Common.Models;
 public sealed class ElasticsearchDto
 {
     public string Uri { get; set; } = null!;
-    public string DefaultIndex => WeatherForecastIndex;
-    public string WeatherForecastIndex { get; set; } = null!;
+    public string DefaultIndex => ElasticsearchIndexes.Products;
 }

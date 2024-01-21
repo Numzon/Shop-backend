@@ -24,7 +24,7 @@ namespace Infrastructure.UnitTests.Identity;
 public sealed class IdentityServiceTests
 {
     private readonly Mock<IOptions<JwtDto>> _jwsOptions;
-    private readonly Mock<UserManager<IdentityUser>> _userManager;
+    private readonly Mock<UserManager<ApplicationUser>> _userManager;
     private readonly Mock<RoleManager<IdentityRole>> _roleManager;
     private readonly Mock<TokenValidationParameters> _tokenValidationParameters;
     private readonly Mock<IApplicationDbContext> _applicationDbContext;
@@ -33,8 +33,8 @@ public sealed class IdentityServiceTests
     public IdentityServiceTests()
     {
         _jwsOptions = new Mock<IOptions<JwtDto>>();
-        var userStore = new Mock<IUserStore<IdentityUser>>();
-        _userManager = new Mock<UserManager<IdentityUser>>(userStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
+        var userStore = new Mock<IUserStore<ApplicationUser>>();
+        _userManager = new Mock<UserManager<ApplicationUser>>(userStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
         var roleStore = new Mock<IRoleStore<IdentityRole>>();
         _roleManager = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null!, null!, null!, null!);
         _tokenValidationParameters = new Mock<TokenValidationParameters>();
@@ -45,7 +45,7 @@ public sealed class IdentityServiceTests
     [Fact]
     public async Task GenerateTokenString_UserEmailIsNullOrEmpty_ReturnServerErrorAuthResultDto()
     {
-        var identityUser = _fixture.Build<IdentityUser>().Without(x => x.Email).Create();
+        var identityUser = _fixture.Build<ApplicationUser>().Without(x => x.Email).Create();
         var service = new IdentityService(_applicationDbContext.Object, _userManager.Object, _roleManager.Object, _jwsOptions.Object, _tokenValidationParameters.Object);
 
         var result = await service.GenerateTokenString(identityUser);
@@ -61,7 +61,7 @@ public sealed class IdentityServiceTests
         _applicationDbContext.Setup(x => x.RefreshTokens.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>())).Returns(new ValueTask<EntityEntry<RefreshToken>>());
         _applicationDbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(_fixture.Create<int>());
 
-        var identityUser = _fixture.Build<IdentityUser>().Create();
+        var identityUser = _fixture.Build<ApplicationUser>().Create();
         var service = new IdentityService(_applicationDbContext.Object, _userManager.Object, _roleManager.Object, _jwsOptions.Object, _tokenValidationParameters.Object);
 
         var result = await service.GenerateTokenString(identityUser);
@@ -238,7 +238,7 @@ public sealed class IdentityServiceTests
     [Fact]
     public async Task VerifyAndGenerateToke_SucessfullyGeneratedNewTokenAndRefreshToken_ReturnsFilledUpAuthResponseDtoObject()
     {
-        var user = _fixture.Create<IdentityUser>();
+        var user = _fixture.Create<ApplicationUser>();
         var jwtDto = _fixture.Build<JwtDto>().With(x => x.ExpiryTimeFrame, TimeSpan.FromHours(1)).Create();
         var jtiClaimValue = _fixture.Create<string>();
         var tokenValidationProvider = GenerateTokenValidationParameters(jwtDto);
@@ -289,7 +289,7 @@ public sealed class IdentityServiceTests
         _jwsOptions.Setup(x => x.Value).Returns(_fixture.Build<JwtDto>().With(x => x.ExpiryTimeFrame, TimeSpan.FromHours(1)).Create());
         _applicationDbContext.Setup(x => x.RefreshTokens.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>())).Returns(new ValueTask<EntityEntry<RefreshToken>>());
         _applicationDbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(_fixture.Create<int>());
-        _userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(_fixture.Create<IdentityUser>());
+        _userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(_fixture.Create<ApplicationUser>());
         var command = CreateValidSignUpCommand();
         var service = new IdentityService(_applicationDbContext.Object, _userManager.Object, _roleManager.Object, _jwsOptions.Object, _tokenValidationParameters.Object);
 
@@ -308,7 +308,7 @@ public sealed class IdentityServiceTests
         _applicationDbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(_fixture.Create<int>());
         _userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(() => null!);
         var response = IdentityResult.Failed(_fixture.CreateMany<IdentityError>(4).ToArray());
-        _userManager.Setup(x => x.CreateAsync(It.IsAny<IdentityUser>(), It.IsAny<string>())).ReturnsAsync(response);
+        _userManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>())).ReturnsAsync(response);
         var command = CreateValidSignUpCommand();
         var service = new IdentityService(_applicationDbContext.Object, _userManager.Object, _roleManager.Object, _jwsOptions.Object, _tokenValidationParameters.Object);
 
@@ -327,7 +327,7 @@ public sealed class IdentityServiceTests
         _applicationDbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(_fixture.Create<int>());
         _userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(() => null!);
         var response = _fixture.Build<IdentityResult>().Create();
-        _userManager.Setup(x => x.CreateAsync(It.IsAny<IdentityUser>(), It.IsAny<string>())).ReturnsAsync(response);
+        _userManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>())).ReturnsAsync(response);
         var command = CreateValidSignUpCommand();
         var service = new IdentityService(_applicationDbContext.Object, _userManager.Object, _roleManager.Object, _jwsOptions.Object, _tokenValidationParameters.Object);
 
@@ -377,9 +377,9 @@ public sealed class IdentityServiceTests
         _jwsOptions.Setup(x => x.Value).Returns(_fixture.Build<JwtDto>().With(x => x.ExpiryTimeFrame, TimeSpan.FromHours(1)).Create());
         _applicationDbContext.Setup(x => x.RefreshTokens.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>())).Returns(new ValueTask<EntityEntry<RefreshToken>>());
         _applicationDbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(_fixture.Create<int>());
-        _userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(_fixture.Create<IdentityUser>());
-        _userManager.Setup(x => x.CheckPasswordAsync(It.IsAny<IdentityUser>(), It.IsAny<string>())).ReturnsAsync(false);
-        var command = _fixture.Build<SignInCommand>().Create();
+        _userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(_fixture.Create<ApplicationUser>());
+        _userManager.Setup(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>())).ReturnsAsync(false);
+        var command = _fixture.Build<SignInCommand>().Create(); 
         var service = new IdentityService(_applicationDbContext.Object, _userManager.Object, _roleManager.Object, _jwsOptions.Object, _tokenValidationParameters.Object);
 
         var result = await service.SignInUser(command);
@@ -395,8 +395,8 @@ public sealed class IdentityServiceTests
         _jwsOptions.Setup(x => x.Value).Returns(_fixture.Build<JwtDto>().With(x => x.ExpiryTimeFrame, TimeSpan.FromHours(1)).Create());
         _applicationDbContext.Setup(x => x.RefreshTokens.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>())).Returns(new ValueTask<EntityEntry<RefreshToken>>());
         _applicationDbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(_fixture.Create<int>());
-        _userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(_fixture.Create<IdentityUser>());
-        _userManager.Setup(x => x.CheckPasswordAsync(It.IsAny<IdentityUser>(), It.IsAny<string>())).ReturnsAsync(true);
+        _userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(_fixture.Create<ApplicationUser>());
+        _userManager.Setup(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>())).ReturnsAsync(true);
         var command = _fixture.Build<SignInCommand>().Create();
         var service = new IdentityService(_applicationDbContext.Object, _userManager.Object, _roleManager.Object, _jwsOptions.Object, _tokenValidationParameters.Object);
 

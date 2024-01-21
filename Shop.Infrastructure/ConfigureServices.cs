@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -9,9 +10,15 @@ using Nest;
 using Shop.Application.Authentication.Models;
 using Shop.Application.Common.Interfaces;
 using Shop.Application.Common.Models;
+using Shop.Domain.Constants;
+using Shop.Domain.ElasticsearchEntities;
 using Shop.Domain.Entities;
 using Shop.Infrastructure.Identity;
 using Shop.Infrastructure.Persistance;
+using Shop.Infrastructure.Persistance.Interceptors;
+using Shop.Infrastructure.Services;
+using StackExchange.Redis;
+using System;
 using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -20,6 +27,9 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<BaseAuditableEntitySaveChangesInterceptor>();
+        services.AddScoped<IDateTime, DateTimeService>();
+
         var connectionStringDto = configuration.GetRequiredSection("Database").Get<DatabaseDto>();
         var connectionString = BuildConnectionString(connectionStringDto);
 
@@ -27,13 +37,15 @@ public static class ConfigureServices
                 options.UseSqlServer(connectionString, builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)))
                 .Configure<JwtDto>(o => configuration.GetRequiredSection("Jwt").Bind(o));
 
+        services.AddScoped<ApplicationDbContextInitialiser>();
+
         services.AddElasticSearch(configuration);
 
         services.AddRedis(configuration);
 
         services.SetUpDependencyInjection();
 
-        services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+        services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -73,28 +85,26 @@ public static class ConfigureServices
             .PrettyJson()
             .DefaultIndex(elasticsearchDto.DefaultIndex);
 
-        settings = AddDefaultMappings(settings, elasticsearchDto);
+        settings = AddDefaultMappings(settings);
 
         var client = new ElasticClient(settings);
 
         services.AddSingleton<IElasticClient>(client);
 
-        CreateIndexes(client, elasticsearchDto);
+        CreateIndexes(client);
 
         return services;
     }
 
-    private static ConnectionSettings AddDefaultMappings(ConnectionSettings settings, ElasticsearchDto elasticsearchDto)
+    private static ConnectionSettings AddDefaultMappings(ConnectionSettings settings)
     {
-        settings.DefaultMappingFor<WeatherForecast>(s => s.IndexName(elasticsearchDto.WeatherForecastIndex)
-            .Ignore(z => z.TemperatureF)
-            );
+        settings.DefaultMappingFor<ESProduct>(s => s.IndexName(ElasticsearchIndexes.Products));
 
         return settings;
     }
-    private static void CreateIndexes(IElasticClient client, ElasticsearchDto elasticsearchDto)
+    private static void CreateIndexes(IElasticClient client)
     {
-        client.Indices.Create(elasticsearchDto.WeatherForecastIndex, i => i.Map<WeatherForecast>(x => x.AutoMap()));
+        client.Indices.Create(ElasticsearchIndexes.Products, i => i.Map<Product>(x => x.AutoMap()));
     }
 
     private static IServiceCollection SetUpDependencyInjection(this IServiceCollection services)
@@ -114,9 +124,16 @@ public static class ConfigureServices
             throw new InvalidOperationException("Redis section cannot be found. Please check your secret manager.");
         }
 
+        var configurationOptions = new ConfigurationOptions
+        {
+            EndPoints = { redisDto.Uri },
+            Password = redisDto.Password,
+            Ssl = false 
+        };
+
         services.AddStackExchangeRedisCache(options =>
         {
-            options.Configuration = redisDto.Uri;
+            options.ConfigurationOptions = configurationOptions;
             options.InstanceName = "Shop_";
         });
 
@@ -153,6 +170,17 @@ public static class ConfigureServices
         {
             options.SaveToken = true;
             options.TokenValidationParameters = tokenValidationParameters;
+        });
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy(Policies.SuperAdminOnly, policy =>
+            {
+                policy.RequireRole(Roles.Admin);
+                policy.RequireClaim(Claims.SuperAdmin);
+            });
+            options.AddPolicy(Policies.ManagmentCenter, policy => policy.RequireRole(Roles.Admin));
+            options.AddPolicy(Policies.UserAccess, policy => policy.RequireRole(Roles.User, Roles.Admin));
         });
 
         services.AddSingleton(tokenValidationParameters);
