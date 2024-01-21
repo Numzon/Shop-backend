@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Shop.Application.Common.Interfaces;
@@ -9,7 +8,7 @@ using Shop.Infrastructure.Persistance.Interceptors;
 using System.Reflection;
 
 namespace Shop.Infrastructure.Persistance;
-public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IApplicationDbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
 {
     private readonly IMediator _mediator;
     private readonly BaseAuditableEntitySaveChangesInterceptor _baseAuditableEntitySaveChangesInterceptor;
@@ -27,6 +26,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IApplicatio
     public DbSet<SpecificationPattern> SpecificationPatterns { get; set; }
     public DbSet<SpecificationType> SpecificationTypes { get; set; }
     public DbSet<SpecificationPatternSpecificationType> SpecificationPatternSpecificationTypes { get; set; }
+    public DbSet<Product> Products { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

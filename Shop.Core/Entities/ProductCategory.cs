@@ -13,4 +13,6 @@ public sealed class ProductCategory : BaseAuditableEntity
     public SpecificationPattern? SpecificationPattern { get; set; }
 
     public IReadOnlyCollection<ProductCategory> Subcategories { get; set; } = new List<ProductCategory>();
+    public IReadOnlyCollection<Product> Products { get; set; } = new List<Product>();
 }
+    

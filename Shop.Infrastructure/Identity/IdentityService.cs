@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shop.Application.Authentication.Commands.GenerateToken;
@@ -12,20 +13,18 @@ using Shop.Domain.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
-using System.Collections;
 
 namespace Shop.Infrastructure.Identity;
 
 public class IdentityService : IIdentityService
 {
     private readonly JwtDto _settings;
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly TokenValidationParameters _tokenValidationParameters;
     private readonly IApplicationDbContext _context;
 
-    public IdentityService(IApplicationDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JwtDto> jwsOptions, TokenValidationParameters tokenValidationParameters)
+    public IdentityService(IApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JwtDto> jwsOptions, TokenValidationParameters tokenValidationParameters)
     {
         _settings = jwsOptions.Value;
         _userManager = userManager;
@@ -33,7 +32,7 @@ public class IdentityService : IIdentityService
         _tokenValidationParameters = tokenValidationParameters;
         _context = context;
     }
-    public async Task<AuthResultDto> GenerateTokenString(IdentityUser user)
+    public async Task<AuthResultDto> GenerateTokenString(ApplicationUser user)
     {
         if (user.Email is null)
         {
@@ -146,7 +145,7 @@ public class IdentityService : IIdentityService
         if (isEmailInUse is not null)
             return AuthResultDtoFactory.EmailInUseError();
 
-        var user = new IdentityUser
+        var user = new ApplicationUser
         {
             Email = request.Email,
             UserName = request.Email
@@ -183,7 +182,7 @@ public class IdentityService : IIdentityService
         return await GenerateTokenString(user);
     }
 
-    private async Task<IEnumerable<Claim>> GetAllValidClaims(IdentityUser user)
+    private async Task<IEnumerable<Claim>> GetAllValidClaims(ApplicationUser user)
     {
         var claims = new List<Claim>
         {

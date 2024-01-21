@@ -1,11 +1,12 @@
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Shop.Infrastructure.Extensions;
 
 namespace Shop.WebApi.Program.Main;
 
 public partial class Program
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -16,46 +17,7 @@ public partial class Program
 
         if (builder.Environment.IsDevelopment())
         {
-            builder.Services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(
-                    policy =>
-                    {
-                        policy.AllowAnyOrigin();
-                        policy.AllowAnyMethod();
-                        policy.AllowAnyHeader();
-                    });
-            });
-
-            builder.Services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Shop API", Version = "v1" });
-                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    In = ParameterLocation.Header,
-                    Description = "Please enter a valid token",
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    BearerFormat = "JWT",
-                    Scheme = "Bearer"
-                });
-
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type=ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[]{}
-                    }
-                });
-
-            });
+            builder.Services.AddCorsForDevelopment();
         }
 
         builder.Services.AddApplicationServices();
@@ -65,6 +27,16 @@ public partial class Program
         builder.Host.UseSerilog();
 
         var app = builder.Build();
+
+        if (app.Environment.IsDevelopment())
+        {
+            await app.InitialiseDatabaseAsync();
+        }
+        else
+        {
+            app.UseHsts();
+        }
+
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

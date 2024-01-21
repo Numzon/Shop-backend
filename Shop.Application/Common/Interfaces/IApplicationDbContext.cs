@@ -9,6 +9,7 @@ public interface IApplicationDbContext
     public DbSet<SpecificationPattern> SpecificationPatterns { get; set; }
     public DbSet<SpecificationType> SpecificationTypes { get; set; }
     public DbSet<SpecificationPatternSpecificationType> SpecificationPatternSpecificationTypes { get; set; }
+    public DbSet<Product> Products { get; set; }
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

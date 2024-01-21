@@ -10,5 +10,6 @@ namespace Shop.Application.Common.Models;
 [ExcludeFromCodeCoverage]
 public sealed class RedisDto
 {
-    public string Uri { get; set; } = null!;
+    public required string Uri { get; set; }
+    public required string Password { get; set; }
 }

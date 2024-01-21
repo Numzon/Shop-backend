@@ -1,15 +1,18 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shop.Application.Category.Commands.CreateCategory;
 using Shop.Application.Category.Commands.DeleteCategory;
 using Shop.Application.Category.Commands.EditCategory;
 using Shop.Application.Category.Queries;
 using Shop.Application.Common.Exceptions;
+using Shop.Domain.Constants;
 
 namespace Shop.WebApi.Controllers;
 
 [ApiController]
 [Route("api/category")]
+//[Authorize(Policy = Policies.ManagmentCenter)]
 public class CategoryController : ControllerBase
 {
     private readonly ISender _sender;

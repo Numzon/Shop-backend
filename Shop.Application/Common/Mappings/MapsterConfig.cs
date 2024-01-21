@@ -3,11 +3,13 @@ using Nest;
 using Shop.Application.Category.Commands.CreateCategory;
 using Shop.Application.Category.Commands.EditCategory;
 using Shop.Application.Category.Models;
+using Shop.Application.Products.Models;
 using Shop.Application.SpecificationPatterns.Commands;
 using Shop.Application.SpecificationPatterns.Models;
 using Shop.Application.SpecificationTypes.Commands.CreateSpecificationType;
 using Shop.Application.SpecificationTypes.Commands.EditSpecificationType;
 using Shop.Application.SpecificationTypes.Models;
+using Shop.Domain.ElasticsearchEntities;
 using Shop.Domain.Entities;
 using System.Diagnostics.CodeAnalysis;
 
@@ -23,6 +25,7 @@ public static class MapsterConfig
         config = GetCategoryConfiguration(config);
         config = GetSpecificationTypeConfiguration(config);
         config = GetSpecificationPatternConfiguration(config);
+        config = GetProductConfiguration(config);
 
         return config;
     }
@@ -67,10 +70,10 @@ public static class MapsterConfig
         return config;
     }
 
-    public static TypeAdapterConfig GetSpecificationPatternsSpecificationTypeConfiguration(TypeAdapterConfig config)
+    public static TypeAdapterConfig GetProductConfiguration(TypeAdapterConfig config)
     {
-        config.NewConfig<SpecificationPatternSpecificationType, SimpleSpecificationPatternSpecificationTypeDto>();
-            //.Map(dest => dest.SpecificationTypeName, src => src.SpecificationType != null? src.SpecificationType.Name : string.Empty);
+        config.NewConfig<Product, ProductDto>()
+            .Map(dest => dest.Category, src => src.Category);
 
         return config;
     }

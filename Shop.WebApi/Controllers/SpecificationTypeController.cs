@@ -1,17 +1,19 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shop.Application.Category.Queries;
 using Shop.Application.Common.Exceptions;
-using Shop.Application.SpecificationPatterns.Queries;
 using Shop.Application.SpecificationTypes.Commands.CreateSpecificationType;
 using Shop.Application.SpecificationTypes.Commands.DeleteSpecificationType;
 using Shop.Application.SpecificationTypes.Commands.EditSpecificationType;
 using Shop.Application.SpecificationTypes.Queries;
+using Shop.Domain.Constants;
 
 namespace Shop.WebApi.Controllers;
 
 [ApiController]
 [Route("api/specification-type")]
+[Authorize(Policy = Policies.ManagmentCenter)]
 public class SpecificationTypeController : ControllerBase
 {
     private readonly ISender _sender;

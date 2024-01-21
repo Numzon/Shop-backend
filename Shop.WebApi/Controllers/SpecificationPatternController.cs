@@ -1,14 +1,18 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Nest;
 using Shop.Application.Common.Exceptions;
 using Shop.Application.SpecificationPatterns.Commands.CreateSpecificationPattern;
 using Shop.Application.SpecificationPatterns.Commands.DeleteSpecificationPattern;
 using Shop.Application.SpecificationPatterns.Commands.EditSpecificationPattern;
 using Shop.Application.SpecificationPatterns.Queries;
+using Shop.Domain.Constants;
 
 namespace Shop.WebApi.Controllers;
 [ApiController]
 [Route("api/specification-pattern")]
+[Authorize(Policy = Policies.ManagmentCenter)]
 public class SpecificationPatternController : ControllerBase
 {
     private readonly ISender _sender;

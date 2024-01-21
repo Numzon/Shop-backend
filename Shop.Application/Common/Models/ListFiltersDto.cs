@@ -1,5 +1,5 @@
 ﻿namespace Shop.Application.Common.Models;
-public class GetAllFiltersDto
+public class ListFiltersDto
 {
     public string? SearchString { get; set; }
     public int PageIndex { get; set; }
